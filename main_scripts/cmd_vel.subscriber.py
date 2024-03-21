@@ -2,8 +2,8 @@
 import rospy
 from geometry_msgs.msg import Twist
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel
-from PyQt6.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
+from PyQt5.QtCore import Qt
 
 appStyle="""
 QMainWindow{

@@ -8,7 +8,7 @@ class Thread(QThread):
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
-        self.cap = cv2.VideoCapture(4)
+        self.cap = cv2.VideoCapture(8)
         while True:
             ret, frame = self.cap.read()
             if ret:
@@ -36,7 +36,7 @@ class App(QWidget):
         self.resize(1800, 1200)
 
         self.label = QLabel(self)
-        self.label.move(0, 0)
+        self.label.move(0, 200)
         self.label.resize(640, 480)
 
         self.button = QPushButton("Press Me!")

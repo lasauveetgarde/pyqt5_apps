@@ -18,11 +18,17 @@ class MyViz( QWidget ):
         config = rviz.Config()
         reader.readFile( config, "rs.rviz" )
         self.frame.load( config )
+
         self.setWindowTitle( config.mapGetChild( "Title" ).getValue() )
-        self.frame.setMenuBar( None )
+        self.frame.setMenuBar(None)
         self.frame.setStatusBar( None )
         self.frame.setHideButtonVisibility( False )
+
         self.manager = self.frame.getManager()
+        
+        # self.manager.makeTimeLabel()
+
+
         self.grid_display = self.manager.getRootDisplayGroup().getDisplayAt( 0 )
         layout = QVBoxLayout()
         layout.addWidget( self.frame )
