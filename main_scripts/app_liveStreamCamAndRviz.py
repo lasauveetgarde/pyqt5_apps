@@ -4,7 +4,7 @@ import sys
 from rviz import bindings as rviz
 import rospy
 import numpy as np
-from PyQt5.QtWidgets import  QWidget, QLabel, QPushButton, QSizePolicy, QSpacerItem, QApplication, QVBoxLayout, QTabWidget, QHBoxLayout
+from PyQt5.QtWidgets import  QWidget, QLabel,QHBoxLayout, QPushButton, QApplication, QVBoxLayout, QTabWidget, QGridLayout
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap, QIcon
 from sensor_msgs.msg import CompressedImage
@@ -60,26 +60,16 @@ class App(QWidget):
         self.image_label_rs.setPixmap(QPixmap.fromImage(image))
 
     def initUI(self):
-        
+                
         self.setWindowTitle('Test App')
         self.resize(2000, 2000)
 
         th_cam1 = ThreadCam(0, self)
-        th_cam2 = ThreadCam(8, self)
-
         th_cam1.changePixmap.connect(self.setImageRow1)
-        th_cam2.changePixmap.connect(self.setImageRow2)
-
         th_cam1.start()
-        th_cam2.start()
-
-        self.image_layout_column = QVBoxLayout()
 
         self.image_label_cam = QLabel()
         self.image_label_rs = QLabel()
-
-        self.image_layout_column.addWidget(self.image_label_cam)
-        self.image_layout_column.addWidget(self.image_label_rs)
 
         rviz = start_rviz.frame
 
@@ -87,28 +77,31 @@ class App(QWidget):
         self.setLayout(layout)
 
         self.rviz_tab = QWidget()
-
-        container_widget = QWidget()
-        self.image_tab_layout = QVBoxLayout(container_widget)
-        spacer = QSpacerItem(10, 10, QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.image_tab = QWidget()
 
         self.camera_button = QPushButton()
+        self.info_button = QPushButton()
         self.camera_button.setLayout(QHBoxLayout())
+        self.info_button.setLayout(QHBoxLayout())
         self.camera_button.layout().addWidget(QLabel("Stop", self))
+        self.info_button.layout().addWidget(QLabel("Stop", self))
         self.camera_button.setFixedSize(200, 200)
-        self.camera_button.setIcon(QIcon("camera.png"))
-        self.camera_button.layout().setAlignment(Qt.AlignCenter)
-        self.image_tab_layout.addItem(spacer)
-        self.image_tab_layout.addWidget(self.camera_button)
-        self.image_tab_layout.addLayout(self.image_layout_column)
+        self.info_button.setFixedSize(200, 200)
+        self.camera_button.setIcon(QIcon("main_scripts/camera.png"))
+        self.camera_button.layout().setAlignment(Qt.AlignRight | Qt.AlignTop)
+        self.info_button.layout().setAlignment(Qt.AlignRight | Qt.AlignTop)
 
-
-        self.image_tab = QTabWidget()
+        self.image_tab_layout = QGridLayout()
+        self.image_tab_layout.addWidget(self.camera_button, 0, 1, alignment=Qt.AlignLeft)
+        self.image_tab_layout.addWidget(self.info_button,1, 1, alignment=Qt.AlignLeft)
+        self.image_tab_layout.addWidget(self.image_label_cam, 0,0)
+        self.image_tab_layout.addWidget(self.image_label_rs,1,0)
         self.image_tab.setLayout(self.image_tab_layout)
 
-        self.rviz_tab_layout = QVBoxLayout()
+        self.rviz_tab_layout = QGridLayout()
         self.rviz_tab_layout.addWidget(rviz)
         self.rviz_tab.setLayout(self.rviz_tab_layout)
+
         tabwidget = QTabWidget()
         tabwidget.addTab(self.image_tab, "CameraWindow")
         tabwidget.addTab(self.rviz_tab, "RvizWindow")
@@ -124,7 +117,7 @@ class App(QWidget):
         self.camera_button.clicked.connect(self.button_clicked)
 
     def button_clicked(self):
-        print("Button was clicked!")
+            print("Button was clicked!")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
