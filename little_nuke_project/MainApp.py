@@ -1,13 +1,17 @@
 import sys
 import rospy
+import os
+os.environ['QT_API'] = 'PyQt5'
+from qtpy import QtGui, QtWidgets, QtCore
 from geometry_msgs.msg import Twist
-from PyQt5.QtWidgets import  QWidget, QLabel, QHBoxLayout, QPushButton, QApplication, QVBoxLayout, QTabWidget, QGridLayout, QCheckBox, QLineEdit, QMessageBox, QDesktopWidget
-from PyQt5.QtCore import  Qt,  pyqtSlot
+from PyQt5.QtWidgets import  QWidget, QLabel, QHBoxLayout, QPushButton, QApplication, QVBoxLayout, QTabWidget, QGridLayout, QCheckBox, QLineEdit, QMessageBox, QDesktopWidget, QStyle
+from PyQt5.QtCore import  Qt,  pyqtSlot,  QSize
 from PyQt5.QtGui import  QPixmap, QIcon, QFont
 import threading
 from camera_thread import ThreadCam
 from start_rviz import StartRviz
 import qdarktheme
+import qtawesome as qta
 
 # class LoginWindow(QWidget):
 # 	def __init__(self):
@@ -54,7 +58,6 @@ import qdarktheme
 # 		qr.moveCenter(cp)
 # 		self.move(qr.topLeft())
 
-			   
 class App(QWidget):
 	def __init__(self):
 		super().__init__()
@@ -78,16 +81,16 @@ class App(QWidget):
 			self.setWindowTitle('User interface')
 			self.center()
 
-			self.th_cam1 = ThreadCam(0, self)
-			self.th_cam1.changePixmap.connect(self.setImageRow1)
-			self.th_cam2 = ThreadCam(6, self)
-			self.th_cam2.changePixmap.connect(self.setImageRow1)
-			self.th_cam3 = ThreadCam(8, self)
-			self.th_cam3.changePixmap.connect(self.setImageRow2)
+			# self.th_cam1 = ThreadCam(0, self)
+			# self.th_cam1.changePixmap.connect(self.setImageRow1)
+			# self.th_cam2 = ThreadCam(6, self)
+			# self.th_cam2.changePixmap.connect(self.setImageRow1)
+			# self.th_cam3 = ThreadCam(8, self)
+			# self.th_cam3.changePixmap.connect(self.setImageRow2)
 
-			self.th_cam1.wait()
-			self.th_cam2.wait()
-			self.th_cam3.start()
+			# self.th_cam1.wait()
+			# self.th_cam2.wait()
+			# self.th_cam3.start()
 
 			self.image_label_cam = QLabel()
 			self.image_label_rs = QLabel()
@@ -117,9 +120,13 @@ class App(QWidget):
 			self.checkbox.setText("Камера переднего наблюдения")
 			self.checkbox.stateChanged.connect(self.onStateChanged)
 			
+			self.info_tab_layout = QGridLayout()
+
+			self.linear_speed_label = QLabel('Линейная скорость')
 			self.velocity_line = QLineEdit('Linear Speed')
 			self.velocity_line.setAlignment(Qt.AlignCenter)
 			self.velocity_line.setFont(QFont('Arial', 15))
+			self.velocity_line.setFixedSize(400, 300)
 			self.velocity_line.setReadOnly(True)
 			
 			self.angle_line = QLineEdit('Angle Speed')
@@ -127,13 +134,48 @@ class App(QWidget):
 			self.angle_line.setFont(QFont('Arial', 15))
 			self.angle_line.setReadOnly(True)
 
+			self.smth1 = QLineEdit('Linear Speed')
+			self.smth1.setAlignment(Qt.AlignCenter)
+			self.smth1.setFont(QFont('Arial', 15))
+			self.smth1.setReadOnly(True)
+			
+			self.smth2 = QLineEdit('Angle Speed')
+			self.smth2.setAlignment(Qt.AlignCenter)
+			self.smth2.setFont(QFont('Arial', 15))
+			self.smth2.setReadOnly(True)
+
+			self.smth3 = QLineEdit('Linear Speed')
+			self.smth3.setAlignment(Qt.AlignCenter)
+			self.smth3.setFont(QFont('Arial', 15))
+			self.smth3.setReadOnly(True)
+			
+			self.smth4 = QLineEdit('Angle Speed')
+			self.smth4.setAlignment(Qt.AlignCenter)
+			self.smth4.setFont(QFont('Arial', 15))
+			self.smth4.setReadOnly(True)
+
+			self.info_tab_layout.addWidget(self.velocity_line, 0,0, alignment=Qt.AlignCenter)
+			self.info_tab_layout.addWidget(self.angle_line, 0,1, alignment=Qt.AlignLeft)
+			self.info_tab_layout.addWidget(self.smth1, 1,0, alignment=Qt.AlignLeft)
+			self.info_tab_layout.addWidget(self.smth2, 1,1, alignment=Qt.AlignLeft)
+			self.info_tab_layout.addWidget(self.smth3, 2,0, alignment=Qt.AlignLeft)
+			self.info_tab_layout.addWidget(self.smth4, 2,1, alignment=Qt.AlignLeft)
+			self.info_tab_layout.addWidget(self.linear_speed_label, 0, 0 , alignment=Qt.AlignBaseline)
+
+			# self.ssl_label = QLabel()
+			# icon = qta.icon("fa.exclamation", color='red')
+			# self.ssl_label.setPixmap(icon.pixmap(QSize(250,250)))
+
+
 			self.image_tab_layout = QGridLayout()
+			self.image_tab_layout.addLayout(self.info_tab_layout, 1, 1)
 			self.image_tab_layout.addWidget(self.camera_button, 0, 0, alignment=Qt.AlignLeft)
 			self.image_tab_layout.addWidget(self.image_label_cam, 1, 0, alignment=Qt.AlignLeft)
 			self.image_tab_layout.addWidget(self.image_label_rs, 2, 0, alignment=Qt.AlignLeft)
 			self.image_tab_layout.addWidget(self.checkbox, 0, 1, alignment=Qt.AlignLeft)
-			self.image_tab_layout.addWidget(self.velocity_line, 1,1, alignment=Qt.AlignLeft)
-			self.image_tab_layout.addWidget(self.angle_line, 2,1, alignment=Qt.AlignLeft)
+
+			# self.image_tab_layout.addWidget(self.ssl_label, 2,1, alignment=Qt.AlignLeft)
+
 
 			self.image_tab.setLayout(self.image_tab_layout)
 
