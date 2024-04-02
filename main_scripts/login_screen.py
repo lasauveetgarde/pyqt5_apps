@@ -1,7 +1,7 @@
 import roslib; roslib.load_manifest('rviz_python_tutorial')
 import sys
 from rviz import bindings as rviz
-from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox)
+from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox, QDesktopWidget)
 
 
 class StartRviz():
@@ -38,7 +38,8 @@ class LoginWindow(QWidget):
 	def __init__(self):
 		super().__init__()
 		self.setWindowTitle('Login Form')
-		self.resize(3000, 2000)
+		self.resize(1000, 500)
+		self.center()
 
 		layout = QGridLayout()
 
@@ -60,7 +61,6 @@ class LoginWindow(QWidget):
 		layout.addWidget(button_login, 2, 0, 1, 2)
 		layout.setRowMinimumHeight(2, 75)
 		self.w = AppWindow()
-		self.w.resize(3000, 2000)
 		self.setLayout(layout)
 
 	def check_password(self):
@@ -71,6 +71,12 @@ class LoginWindow(QWidget):
 		else:
 			msg.setText('Incorrect Password')
 			msg.exec_()
+		
+	def center(self):
+		qr = self.frameGeometry()
+		cp = QDesktopWidget().availableGeometry().center()
+		qr.moveCenter(cp)
+		self.move(qr.topLeft())
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
