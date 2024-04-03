@@ -4,8 +4,8 @@ import os
 os.environ['QT_API'] = 'PyQt5'
 from qtpy import  QtWidgets
 from geometry_msgs.msg import Twist
-from PyQt5.QtWidgets import  QWidget, QLabel, qApp, QApplication, QPlainTextEdit, QVBoxLayout, QTabWidget, QGridLayout, QCheckBox, QLineEdit, QDesktopWidget
-from PyQt5.QtCore import  Qt,  pyqtSlot,  QTimer, QTime, QDate
+from PyQt5.QtWidgets import  QWidget, QLabel, QPushButton, qApp, QApplication, QTextEdit, QVBoxLayout, QTabWidget, QGridLayout, QCheckBox, QLineEdit, QDesktopWidget
+from PyQt5.QtCore import  Qt,  pyqtSlot,  QTimer, QTime, QDate, QDateTime
 from PyQt5.QtGui import  QPixmap, QIcon, QFont, QCursor
 import threading
 from camera_thread import ThreadCam
@@ -35,6 +35,7 @@ class App(QtWidgets.QWidget):
 
 		self.setWindowTitle('User interface')
 		self.center()
+		self.setWindowIcon(QIcon('little_nuke_project/trans.jpg'))
 
 		"""
 		Объявление видеопотоков с трех камер видеонаблюдения
@@ -117,8 +118,12 @@ class App(QtWidgets.QWidget):
 		Окно логирования информации о роботе
 		"""
 
-		self.logging_area = QPlainTextEdit()
+		self.some_button = QPushButton('Test Button')
+		self.some_button.clicked.connect(self.clicked_some_button)
+
+		self.logging_area = QTextEdit()
 		self.logging_area.setFixedSize(640,480)
+		self.logging_area.setReadOnly(True)
 		self.logging_area.insertPlainText("Информация (логирование) состояний робота\n")
 
 		"""
@@ -144,22 +149,22 @@ class App(QtWidgets.QWidget):
 		self.indicator_ledBar = QVBoxLayout()
 		self.moving_indicator = QLabel("")
 		self.moving_indicator.setFixedSize(100, 100)
-		self.moving_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(50, 205, 50);border: 3px; border-style: outser; border-radius: 50%; padding: 10px;}")
+		self.moving_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(50, 205, 50);border: 5px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 10px;}")
 		self.indicator_ledBar.addWidget(self.moving_indicator)
 
 		self.girder_indicator = QLabel("")
 		self.girder_indicator.setFixedSize(100, 100)
-		self.girder_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(178, 34, 34);border: 3px; border-style: outser; border-radius: 50%; padding: 10px;}")
+		self.girder_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(178, 34, 34);border: 5px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 10px;}")
 		self.indicator_ledBar.addWidget(self.girder_indicator)
 
 		self.controller_indicator = QLabel("")
 		self.controller_indicator.setFixedSize(100, 100)
-		self.controller_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(0, 0, 139);border: 3px; border-style: outser; border-radius: 50%; padding: 10px;}")
+		self.controller_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(0, 0, 139);border: 5px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 10px;}")
 		self.indicator_ledBar.addWidget(self.controller_indicator)
 
 		self.power_indicator = QLabel("")
 		self.power_indicator.setFixedSize(100, 100)
-		self.power_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(255, 215, 0);border: 3px; border-style: outser; border-radius: 50%; padding: 10px;}")
+		self.power_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(255, 215, 0);border: 5px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 10px;}")
 		self.indicator_ledBar.addWidget(self.power_indicator)
 
 		"""
@@ -169,11 +174,12 @@ class App(QtWidgets.QWidget):
 		self.image_tab_layout = QGridLayout()
 		self.image_tab_layout.addLayout(self.info_tab_layout, 1, 1)
 		self.image_tab_layout.addLayout(self.time_indicator_label, 0, 2)
-		self.image_tab_layout.addLayout(self.indicator_ledBar, 1, 2)
+		self.image_tab_layout.addLayout(self.indicator_ledBar, 1, 2, 2, 2)
 		self.image_tab_layout.addWidget(self.image_label_cam, 1, 0, alignment=Qt.AlignLeft)
 		self.image_tab_layout.addWidget(self.image_label_rs, 2, 0, alignment=Qt.AlignLeft)
 		self.image_tab_layout.addWidget(self.checkbox, 0, 1, alignment=Qt.AlignLeft)
 		self.image_tab_layout.addWidget(self.logging_area, 2, 1)
+		self.image_tab_layout.addWidget(self.some_button,0,0)
 		self.image_tab.setLayout(self.image_tab_layout)
 
 		"""
@@ -206,12 +212,21 @@ class App(QtWidgets.QWidget):
 			self.th_cam1.startThread(True)  # Start the thread
 			self.th_cam2.startThread(False)  # Stop the thread
 			self.checkbox.setText("Камера переднего наблюдения")
+			current_time = QDateTime.currentDateTime().toString("dd.MM.yyyy hh:mm:ss")
+			log_message = f"<font color='red'>{current_time}</font> Turned to front camera<br>"
+			self.logging_area.insertHtml(log_message)
+			self.auto_scrolling()
+
 		else:
 			self.checkbox.setText("Камера заднего наблюдения")
 			self.thread_stop_event.set()  # Signal the thread to stop when the button is checked
 			self.th_cam1.startThread(False)  # Stop the thread
 			self.th_cam2.startThread(True)  # Stop the thread
-	
+			current_time = QDateTime.currentDateTime().toString("dd.MM.yyyy hh:mm:ss")
+			log_message = f"<font color='red'>{current_time}</font> Turned to back camera<br>"
+			self.logging_area.insertHtml(log_message)
+			self.auto_scrolling()
+
 	def center(self):
 		window_width = self.width()
 		window_height = self.height()
@@ -243,6 +258,16 @@ class App(QtWidgets.QWidget):
 		current_date = QDate.currentDate()
 		label_date = current_date.toString('dd.MM.yyyy')
 		self.date_label.setText(label_date)
+
+	def clicked_some_button(self):
+		current_time = QDateTime.currentDateTime().toString("dd.MM.yyyy hh:mm:ss")
+		log_message = f"<font color='red'>{current_time}</font> Test button was clicked<br>"
+		self.logging_area.insertHtml(log_message)
+		self.auto_scrolling()
+		
+	def auto_scrolling (self):
+		self.scrollbar = self.logging_area.verticalScrollBar()
+		self.scrollbar.setValue(self.scrollbar.maximum())
 
 if __name__ == '__main__':
 	try:
