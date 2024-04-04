@@ -19,7 +19,7 @@ class ThreadCam(QThread):
                 h, w, ch = rgbImage.shape
                 bytesPerLine = ch * w
                 convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-                p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                p = convertToQtFormat.scaled(1080, 720, Qt.KeepAspectRatio)
                 self.changePixmap.emit(p)
                 if cv2.waitKey(1) == ord('q'):
                     break
