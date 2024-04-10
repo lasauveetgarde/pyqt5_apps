@@ -23,7 +23,6 @@ class MainWindow(QMainWindow):
     def toggle_window(self, checked):
         if self.w.isVisible():
             self.w.hide()
-
         else:
             self.w.show()
 
