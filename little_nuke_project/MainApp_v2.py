@@ -55,6 +55,7 @@ import qdarktheme
 # 		self.setLayout(layout)
 
 # 		self.main.logout_button.clicked.connect(self.logout_button_was_clicked)
+# 		self.main.logout_button2.clicked.connect(self.logout_button_was_clicked)
 
 # 	def check_password(self):
 # 		msg = QMessageBox()
@@ -125,11 +126,17 @@ class Thread(QThread):
 		self.height = height
 
 	
-class AnotherWindow(QWidget):
+class SaveImageWindow(QWidget):
 	def __init__(self):
 		super().__init__()
 		self.setWindowTitle('Сохранение изображения')
-		self.setFixedSize(600,400)
+		self.desktop = QApplication.desktop()
+		screen_geometry = self.desktop.screenGeometry()
+		screen_width = screen_geometry.width()
+		screen_height = screen_geometry.height()
+		window_width = screen_width / 10
+		window_height = screen_height / 10
+		self.setGeometry(0, 0, window_width, window_height)
 		self.center()
 
 		self.save_image_layout = QHBoxLayout()
@@ -143,20 +150,20 @@ class AnotherWindow(QWidget):
 
 		self.image_widgets_layout = QVBoxLayout()
 		self.num_kt_spinbox = QSpinBox(minimum=1, maximum=100, value=1)
-		self.num_kt_spinbox.setFixedSize(350, 50)
+		self.num_kt_spinbox.setFixedSize(350, screen_height / 40)
 
 		self.num_opora_spinbox = QSpinBox(minimum=1, maximum=100, value=1)
-		self.num_opora_spinbox.setFixedSize(350, 50)
+		self.num_opora_spinbox.setFixedSize(350, screen_height / 40)
 
 		self.element_combox = QComboBox()
-		self.element_combox.setFixedSize(350, 50)
+		self.element_combox.setFixedSize(350, screen_height / 40)
 		self.element_combox.addItem("Балка")
 		self.element_combox.addItem("Болт")
 		self.element_combox.addItem("Гайка")
 		self.element_combox.addItem("Гребень")
 
 		self.num_element_spinbox = QSpinBox(minimum=1, maximum=100, value=1)
-		self.num_element_spinbox.setFixedSize(350, 50)
+		self.num_element_spinbox.setFixedSize(350, screen_height / 40)
 		self.cancle_button = QPushButton("Отмена")	
 
 		self.image_text_layout.addWidget(self.num_kt_label)
@@ -250,8 +257,6 @@ class AppWindow(QWidget):
 		self.screenRect = self.desktop.screenGeometry()
 		self.height = self.screenRect.height()
 		self.width = self.screenRect.width()
-		self.showMaximized() 
-		# self.center()
 
 		self.main_tab = QWidget()
 		self.logging_tab = QWidget()
@@ -259,7 +264,6 @@ class AppWindow(QWidget):
 		self.main_layout = QGridLayout()
 		screen_geometry = self.desktop.availableGeometry()
 		self.setGeometry(screen_geometry)
-		self.setLayout(self.main_layout)
 		self.setLayout(self.main_layout)
 
 		self.main_thread = Thread(self.width, self.height, 0)
@@ -291,64 +295,64 @@ class AppWindow(QWidget):
 
 		self.save_snap_button = QPushButton("Сохранение кадра")
 		self.save_snap_button.setChecked(self.button_is_checked)
-		self.save_snap_button.setFixedWidth(700)
-		self.save_snap_button.setFixedHeight(100)
+		self.save_snap_button.setFixedWidth(0.2*self.width)
+		self.save_snap_button.setFixedHeight(0.07*self.height)
 
 		self.auto_save_snap_button = QPushButton("Не открывать диалог с данными кадра")
 		self.auto_save_snap_button.setChecked(self.button_is_checked)
-		self.auto_save_snap_button.setFixedWidth(700)
-		self.auto_save_snap_button.setFixedHeight(100)
+		self.auto_save_snap_button.setFixedWidth(0.2*self.width)
+		self.auto_save_snap_button.setFixedHeight(0.07*self.height)
 
 		self.logout_button = QPushButton("Выход")
 		self.logout_button.setChecked(self.button_is_checked)
-		self.logout_button.setFixedWidth(700)
-		self.logout_button.setFixedHeight(100)
+		self.logout_button.setFixedWidth(0.2*self.width)
+		self.logout_button.setFixedHeight(0.07*self.height)
 
 		"""
 		Индикаторы состояния робота
 		"""
 
 		self.indicator_state_ledBar = QHBoxLayout()
-		self.state_indicator = QLabel("<font size='11' color='white' face='Verdana'>Готово</font>")
+		self.state_indicator = QLabel("<font size='4' color='white' face='Verdana'>Готово</font>")
 		self.state_indicator.setAlignment(Qt.AlignCenter)
-		self.state_indicator.setFixedSize(0.1*self.width, 200)
+		self.state_indicator.setFixedSize(0.1*self.width, 0.07*self.height)
 		self.state_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(17, 48, 17);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_state_ledBar.addWidget(self.state_indicator, alignment=Qt.AlignCenter)
 
 		self.gorizont_indicator = QLabel("")
-		self.gorizont_indicator.setFixedSize(0.1*self.width, 200)
+		self.gorizont_indicator.setFixedSize(0.1*self.width, 0.07*self.height)
 		self.gorizont_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(17, 48, 17);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_state_ledBar.addWidget(self.gorizont_indicator, alignment=Qt.AlignCenter)
 
 		self.movement_indicator = QLabel("")
-		self.movement_indicator.setFixedSize(0.1*self.width, 200)
+		self.movement_indicator.setFixedSize(0.1*self.width, 0.07*self.height)
 		self.movement_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(50, 205, 55);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_state_ledBar.addWidget(self.movement_indicator, alignment=Qt.AlignCenter)
 
 		self.nomination_indicator = QLabel("")
-		self.nomination_indicator.setFixedSize(0.1*self.width, 200)
+		self.nomination_indicator.setFixedSize(0.1*self.width, 0.07*self.height)
 		self.nomination_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(50, 205, 55);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_state_ledBar.addWidget(self.nomination_indicator, alignment=Qt.AlignCenter)
 
 		self.state_line = QHBoxLayout()
 		self.state_indicator_line = QLineEdit()
-		self.state_indicator_line.setFixedSize(0.4*self.width, 100)
+		self.state_indicator_line.setFixedSize(0.4*self.width, 0.07*self.height)
 		self.state_indicator_line.setReadOnly(True)
 		self.state_line.addWidget(self.state_indicator_line, alignment=Qt.AlignCenter)
 
 		self.indicator_ledBar = QHBoxLayout()
 		self.moving_indicator = QLabel("")
-		self.moving_indicator.setFixedSize(0.133*self.width, 200)
+		self.moving_indicator.setFixedSize(0.133*self.width, 0.1*self.height)
 		self.moving_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(17, 48, 17);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_ledBar.addWidget(self.moving_indicator, alignment=Qt.AlignCenter)
 
 		self.outrigger_indicator = QLabel("")
-		self.outrigger_indicator.setFixedSize(0.133*self.width, 200)
+		self.outrigger_indicator.setFixedSize(0.133*self.width, 0.1*self.height)
 		self.outrigger_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(17, 48, 17);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_ledBar.addWidget(self.outrigger_indicator, alignment=Qt.AlignCenter)
 
 		self.girder_indicator = QLabel("")
-		self.girder_indicator.setFixedSize(0.133*self.width, 200)
+		self.girder_indicator.setFixedSize(0.133*self.width, 0.1*self.height)
 		self.girder_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(50, 205, 55);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_ledBar.addWidget(self.girder_indicator, alignment=Qt.AlignCenter)
 
@@ -378,7 +382,7 @@ class AppWindow(QWidget):
 		self.save_botton_layout.addWidget(self.auto_save_snap_button)
 		self.save_botton_layout.addWidget(self.save_snap_button)
 		self.botton_layout.addLayout(self.save_botton_layout)
-		self.botton_layout.addWidget(self.logout_button)
+		self.botton_layout.addWidget(self.logout_button, alignment=Qt.AlignBottom)
 		self.botton_map_layout.addLayout(self.indicator_state_ledBar)
 		self.botton_map_layout.addLayout(self.state_line)
 		self.botton_map_layout.addLayout(self.indicator_ledBar)
@@ -389,19 +393,19 @@ class AppWindow(QWidget):
 		self.save_snap_button.clicked.connect(self.the_button_was_clicked)
 		self.auto_save_snap_button.clicked.connect(self.save_button_was_clicked)
 
-		self.w = AnotherWindow()
-		self.w.save_button.clicked.connect(self.save_button_was_clicked)
+		self.image_win = SaveImageWindow()
+		self.image_win.save_button.clicked.connect(self.save_button_was_clicked)
 
-		self.value_num_kt_spinbox = self.w.num_kt_spinbox.value()
-		self.w.num_kt_spinbox.valueChanged.connect(self.print_save_image_value)
+		self.value_num_kt_spinbox = self.image_win.num_kt_spinbox.value()
+		self.image_win.num_kt_spinbox.valueChanged.connect(self.print_save_image_value)
 
-		self.value_num_opora_spinbox = self.w.num_opora_spinbox.value()
-		self.w.num_opora_spinbox.valueChanged.connect(self.print_save_image_value)
+		self.value_num_opora_spinbox = self.image_win.num_opora_spinbox.value()
+		self.image_win.num_opora_spinbox.valueChanged.connect(self.print_save_image_value)
 
-		self.value_element_combox = self.w.element_combox.currentText()
+		self.value_element_combox = self.image_win.element_combox.currentText()
 
-		self.value_num_element_spinbox = self.w.num_element_spinbox.value()
-		self.w.num_element_spinbox.valueChanged.connect(self.print_save_image_value)
+		self.value_num_element_spinbox = self.image_win.num_element_spinbox.value()
+		self.image_win.num_element_spinbox.valueChanged.connect(self.print_save_image_value)
 
 		"""
 		Окно логирования информации о роботе
@@ -424,15 +428,70 @@ class AppWindow(QWidget):
 		self.setting_info_widget.setFixedSize(0.45*self.width,0.8*self.height)
 		self.setting_info_widget.setStyleSheet("border: 1px solid black;")
 		self.info_area = QTextEdit()
+
+		self.open_control_images = QHBoxLayout()
 		self.open_joy_image = QPushButton('Открыть инструкцию по управлению джойстиком')
-		self.setting_info_layout.addWidget(self.open_joy_image)
 		self.open_joy_image.setChecked(self.button_is_checked)
 		self.open_joy_image.clicked.connect(self.open_joystick_image)
+		self.open_joy_image.setStyleSheet("QPushButton {"
+										"border-radius: 10px;"
+										"border: 2px solid #555555;"
+										"background-color: #D3D3D3;"
+										"color: #3F3F3F;"
+										"padding: 5px 10px;"
+										"text-align: center;"
+										"text-decoration: none;"
+										"font-size: 16px;"
+										"margin: 4px 2px;"
+										"}")
+		self.open_joy_image.setFixedSize(0.2*self.width,0.05*self.height)
+
+		self.open_control_image = QPushButton('Открыть инструкцию по управлению джойстиком')
+		self.open_control_image.setChecked(self.button_is_checked)
+		self.open_control_image.clicked.connect(self.open_joystick_image)
+		self.open_control_image.setStyleSheet("QPushButton {"
+										"border-radius: 10px;"
+										"border: 2px solid #555555;"
+										"background-color: #D3D3D3;"
+										"color: #3F3F3F;"
+										"padding: 5px 10px;"
+										"text-align: center;"
+										"text-decoration: none;"
+										"font-size: 16px;"
+										"margin: 4px 2px;"
+										"}")
+		self.open_control_image.setFixedSize(0.2*self.width,0.05*self.height) 
+
+		self.open_control_images.addWidget(self.open_joy_image, alignment=Qt.AlignTop)
+		self.open_control_images.addWidget(self.open_control_image, alignment=Qt.AlignTop)
+
 		self.info_area.setFixedSize(0.44*self.width,0.6*self.height)
 		self.info_area.setReadOnly(True)
 		self.info_area.insertPlainText("Инструкция по работе с мобильной платформой\n")
+
+		self.logout_button2 = QPushButton("Выход")
+		self.logout_button2.setChecked(self.button_is_checked)
+		self.logout_button2.setFixedWidth(0.1*self.width)
+		self.logout_button2.setFixedHeight(0.07*self.height)
+		self.logout_button2.setStyleSheet("QPushButton {"
+										"border-radius: 10px;"
+										"border: 2px solid #555555;"
+										"background-color: #D3D3D3;"
+										"color: #3F3F3F;"
+										"padding: 5px 10px;"
+										"text-align: center;"
+										"text-decoration: none;"
+										"font-size: 16px;"
+										"margin: 4px 2px;"
+										"}")
+		
+		self.setting_info_layout.addLayout(self.open_control_images)
+
 		self.setting_info_layout.addWidget(self.info_area)
+		self.setting_info_layout.addWidget(self.logout_button2, alignment=Qt.AlignRight)
+
 		self.setting_info_widget.setLayout(self.setting_info_layout)
+	
 
 		"""
 		Создание вкладки для логирования и получения информации по работе с роботом
@@ -455,20 +514,20 @@ class AppWindow(QWidget):
 		self.main_layout.addWidget(tabwidget)
 
 	def open_joystick_image(self):                                            
-		self.w = JoyImageWindow()
-		self.w.show()
+		self.joy_img_win = JoyImageWindow()
+		self.joy_img_win.show()
 
 	def the_button_was_clicked(self):
-		if self.w.isVisible():
-			self.w.hide()
+		if self.image_win.isVisible():
+			self.image_win.hide()
 		else:
-			self.w.show()
+			self.image_win.show()
 
 	def print_save_image_value(self):
-		self.value_num_kt_spinbox = self.w.num_kt_spinbox.value()
-		self.value_num_opora_spinbox = self.w.num_opora_spinbox.value()
-		self.value_element_combox = self.w.element_combox.currentText()
-		self.value_num_element_spinbox = self.w.num_element_spinbox.value()
+		self.value_num_kt_spinbox = self.image_win.num_kt_spinbox.value()
+		self.value_num_opora_spinbox = self.image_win.num_opora_spinbox.value()
+		self.value_element_combox = self.image_win.element_combox.currentText()
+		self.value_num_element_spinbox = self.image_win.num_element_spinbox.value()
 
 	def save_button_was_clicked(self, image):
 		self.frame = self.main_thread.frame
@@ -481,7 +540,7 @@ class AppWindow(QWidget):
 		image.save(filename, "jpg")
 		self.message = 'Сохранение кадра ' + "КТ№" + str(self.value_num_kt_spinbox)  + "Опора№" + str(self.value_num_opora_spinbox) + self.value_element_combox + "№" + str(self.value_num_element_spinbox)
 		self.message_logger(self.message)
-		self.w.hide()
+		self.image_win.hide()
 
 	def center(self):
 		qr = self.frameGeometry()
