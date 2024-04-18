@@ -1,13 +1,14 @@
 import cv2
 import sys
-from PyQt5.QtWidgets import  QWidget, QLabel, QCheckBox, QDesktopWidget, QMessageBox, QLineEdit, QApplication, QPushButton, QVBoxLayout, QFileDialog, QSpinBox, QHBoxLayout, QComboBox, QGridLayout, QRadioButton
-from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import  QWidget, QTextBrowser, QLabel, QCheckBox, QTabWidget, QDesktopWidget, QTextEdit, QMessageBox, QLineEdit, QApplication, QPushButton, QVBoxLayout, QFileDialog, QSpinBox, QHBoxLayout, QComboBox, QGridLayout, QRadioButton
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QDateTime
 from PyQt5.QtGui import QImage, QPixmap
 import threading
 from random import randint
 import os
 import datetime
 from start_rviz import StartRviz
+import qdarktheme
 
 # class LoginWindow(QWidget):
 # 	def __init__(self):
@@ -185,6 +186,42 @@ class AnotherWindow(QWidget):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
+class JoyImageWindow(QWidget):
+	def __init__(self):
+		super().__init__()
+
+		self.button_is_checked = False
+
+		self.setWindowTitle('Сохранение изображения')
+		self.setFixedSize(1200,800)
+		self.center()
+		self.joy_image_layout = QVBoxLayout()
+		self.close_joy_image = QPushButton("OK")
+		self.close_joy_image.setChecked(self.button_is_checked)
+
+		self.joy_image_label = QLabel()
+		pixmap = QPixmap('xbox_joy.jpg')
+		scaled_pixmap = pixmap.scaled(900, 600, Qt.KeepAspectRatio)
+		self.joy_image_label.setPixmap(scaled_pixmap)
+		self.joy_image_label.setFixedSize(1200, 700)
+		self.joy_image_label.setAlignment(Qt.AlignCenter)
+
+		self.joy_image_layout.addWidget(self.joy_image_label)
+		self.joy_image_layout.addWidget(self.close_joy_image)
+
+		self.setLayout(self.joy_image_layout)
+
+		self.close_joy_image.clicked.connect(self.ok_button_was_clicked)
+	
+	def ok_button_was_clicked(self):
+		self.hide()
+
+	def center(self):
+		qr = self.frameGeometry()
+		cp = QDesktopWidget().availableGeometry().center()
+		qr.moveCenter(cp)
+		self.move(qr.topLeft())
+
 
 class AppWindow(QWidget):
 	def __init__(self):
@@ -208,13 +245,22 @@ class AppWindow(QWidget):
 		self.button_is_checked = False
 		self.main_thread = None
 
-		self.setWindowTitle('Сохранение изображения')
+		self.setWindowTitle('ROSATOM')
 		self.desktop = QApplication.desktop()
 		self.screenRect = self.desktop.screenGeometry()
 		self.height = self.screenRect.height()
 		self.width = self.screenRect.width()
 		self.showMaximized() 
-		self.center()
+		# self.center()
+
+		self.main_tab = QWidget()
+		self.logging_tab = QWidget()
+
+		self.main_layout = QGridLayout()
+		screen_geometry = self.desktop.availableGeometry()
+		self.setGeometry(screen_geometry)
+		self.setLayout(self.main_layout)
+		self.setLayout(self.main_layout)
 
 		self.main_thread = Thread(self.width, self.height, 0)
 		self.main_thread.changePixmap.connect(self.setImageMain)
@@ -234,10 +280,14 @@ class AppWindow(QWidget):
 
 		self.rviz = start_rviz.frame
 		self.rviz.setFixedWidth(0.4*self.width)
-		self.rviz.setFixedHeight(0.5*self.height)
+		self.rviz.setFixedHeight(0.4*self.height)
 
 		self.label = QLabel(self)
 		self.label.resize(self.width, self.height)
+
+		"""
+		Кнопки сохранения изображения и выхода в окно авторизации
+		"""
 
 		self.save_snap_button = QPushButton("Сохранение кадра")
 		self.save_snap_button.setChecked(self.button_is_checked)
@@ -257,6 +307,7 @@ class AppWindow(QWidget):
 		"""
 		Индикаторы состояния робота
 		"""
+
 		self.indicator_state_ledBar = QHBoxLayout()
 		self.state_indicator = QLabel("<font size='11' color='white' face='Verdana'>Готово</font>")
 		self.state_indicator.setAlignment(Qt.AlignCenter)
@@ -301,16 +352,17 @@ class AppWindow(QWidget):
 		self.girder_indicator.setStyleSheet("QLabel {color: green; background-color: rgb(50, 205, 55);border: 10px; border-style: outset; border-color: #a8aab1; border-radius: 50%; padding: 20px;}")
 		self.indicator_ledBar.addWidget(self.girder_indicator, alignment=Qt.AlignCenter)
 
-		layout = QGridLayout(self)
+		self.main_info_layout = QGridLayout(self)
+		self.main_tab.setLayout(self.main_info_layout)
 		self.image_layout = QVBoxLayout(self)
 		self.botton_map_layout = QVBoxLayout(self)
 
 		self.main_image_label = QLabel()
 		self.main_image_label.setFixedSize(0.5*self.width,0.5*self.height)
 		self.up_image_label = QLabel()
-		self.up_image_label.setFixedSize(0.25*self.width,0.4*self.height)
+		self.up_image_label.setFixedSize(0.25*self.width,0.3*self.height)
 		self.back_image_label = QLabel()
-		self.back_image_label.setFixedSize(0.25*self.width,0.4*self.height)
+		self.back_image_label.setFixedSize(0.25*self.width,0.3*self.height)
 
 		self.else_image_labels = QHBoxLayout(self)
 		self.image_layout.addWidget(self.main_image_label, alignment=Qt.AlignTop)
@@ -318,7 +370,7 @@ class AppWindow(QWidget):
 		self.else_image_labels.addWidget(self.back_image_label)
 
 		self.image_layout.addLayout(self.else_image_labels)
-		layout.addLayout(self.image_layout, 0, 0)
+		self.main_info_layout.addLayout(self.image_layout, 0, 0)
 
 		self.botton_map_layout.addWidget(self.rviz, alignment=Qt.AlignTop | Qt.AlignCenter)
 		self.botton_layout = QHBoxLayout(self)
@@ -332,7 +384,7 @@ class AppWindow(QWidget):
 		self.botton_map_layout.addLayout(self.indicator_ledBar)
 		self.botton_map_layout.addLayout(self.botton_layout)
 
-		layout.addLayout(self.botton_map_layout, 0, 1, 1 ,1 )
+		self.main_info_layout.addLayout(self.botton_map_layout, 0, 1, 1 ,1 )
 
 		self.save_snap_button.clicked.connect(self.the_button_was_clicked)
 		self.auto_save_snap_button.clicked.connect(self.save_button_was_clicked)
@@ -351,10 +403,64 @@ class AppWindow(QWidget):
 		self.value_num_element_spinbox = self.w.num_element_spinbox.value()
 		self.w.num_element_spinbox.valueChanged.connect(self.print_save_image_value)
 
+		"""
+		Окно логирования информации о роботе
+		"""
+
+
+		self.logging_area_layout = QVBoxLayout()
+		self.logging_area_widget = QWidget()
+		self.logging_area_widget.setLayout(self.logging_area_layout)
+		self.logging_area_widget.setFixedSize(0.45*self.width,0.8*self.height)
+		self.logging_area_widget.setStyleSheet("border: 1px solid black;")
+		self.logging_area = QTextEdit()
+		self.logging_area.setFixedSize(0.44*self.width,0.78*self.height)
+		self.logging_area.setReadOnly(True)
+		self.logging_area.insertPlainText("Информация (логирование) состояний робота\n")
+		self.logging_area_layout.addWidget(self.logging_area)
+
+		self.setting_info_layout = QVBoxLayout()
+		self.setting_info_widget = QWidget()
+		self.setting_info_widget.setFixedSize(0.45*self.width,0.8*self.height)
+		self.setting_info_widget.setStyleSheet("border: 1px solid black;")
+		self.info_area = QTextEdit()
+		self.open_joy_image = QPushButton('Открыть инструкцию по управлению джойстиком')
+		self.setting_info_layout.addWidget(self.open_joy_image)
+		self.open_joy_image.setChecked(self.button_is_checked)
+		self.open_joy_image.clicked.connect(self.open_joystick_image)
+		self.info_area.setFixedSize(0.44*self.width,0.6*self.height)
+		self.info_area.setReadOnly(True)
+		self.info_area.insertPlainText("Инструкция по работе с мобильной платформой\n")
+		self.setting_info_layout.addWidget(self.info_area)
+		self.setting_info_widget.setLayout(self.setting_info_layout)
+
+		"""
+		Создание вкладки для логирования и получения информации по работе с роботом
+		"""
+
+		self.logging_tab_layout = QHBoxLayout()
+		self.logging_tab.setLayout(self.logging_tab_layout)
+		self.logging_tab_layout.addWidget(self.logging_area_widget)
+		self.logging_tab_layout.addWidget(self.setting_info_widget)
+
+
+		"""
+		Создание TAB для пользовательского интерфейса
+		"""
+
+		tabwidget = QTabWidget()
+		tabwidget.addTab(self.main_tab, "Основное окно")
+		tabwidget.addTab(self.logging_tab, "Окно логирования")
+
+		self.main_layout.addWidget(tabwidget)
+
+	def open_joystick_image(self):                                            
+		self.w = JoyImageWindow()
+		self.w.show()
+
 	def the_button_was_clicked(self):
 		if self.w.isVisible():
 			self.w.hide()
-
 		else:
 			self.w.show()
 
@@ -373,6 +479,9 @@ class AppWindow(QWidget):
 		timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 		filename = folder_name + "/" + "П_" + timestamp + "_КТ №" + str(self.value_num_kt_spinbox) + ".jpg"
 		image.save(filename, "jpg")
+		self.message = 'Сохранение кадра ' + "КТ№" + str(self.value_num_kt_spinbox)  + "Опора№" + str(self.value_num_opora_spinbox) + self.value_element_combox + "№" + str(self.value_num_element_spinbox)
+		self.message_logger(self.message)
+		self.w.hide()
 
 	def center(self):
 		qr = self.frameGeometry()
@@ -380,8 +489,19 @@ class AppWindow(QWidget):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
+	def message_logger(self, message):
+		current_time = QDateTime.currentDateTime().toString("dd.MM.yyyy hh:mm:ss")
+		log_message = f"<font color='red'>{current_time}</font> {message}<br>"
+		self.logging_area.insertHtml(log_message)
+		self.auto_scrolling()
+
+	def auto_scrolling (self):
+		self.scrollbar = self.logging_area.verticalScrollBar()
+		self.scrollbar.setValue(self.scrollbar.maximum())
+
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
+	# qdarktheme.setup_theme('light', custom_colors={"primary": "#bf4584"})
 	start_rviz = StartRviz()
 	ex = AppWindow()
 	ex.show()
